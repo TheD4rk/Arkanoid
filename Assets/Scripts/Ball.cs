@@ -1,21 +1,32 @@
-using System;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Ball : MonoBehaviour
 {
+    private Vector3 ballStartPosition;
+    private int lifes;
+    public GameObject[] lifeImages; // TODO: Put UI Code into Settings Script
+
     private Vector3 velocity;
     public float maxX;
     public float maxZ;
 
     public int damagePower;
+    
+    public TMP_Text scoreText;
+    private int scoreValue;
 
     private void Start()
     {
+        lifes = 3;
+        damagePower = 1;
+        scoreValue = 0;
+
+        ballStartPosition = new Vector3(0, 0, 0.5f);
         maxX = 15f;
         maxZ = 15f;
         velocity = new Vector3(0, 0, -maxZ);
-        damagePower = 1;
+        Time.timeScale = 1;
     }
     
     private void Update()
@@ -32,13 +43,11 @@ public class Ball : MonoBehaviour
             float nDist = dist / maxDistance;
 
             velocity = new Vector3(nDist * maxX, velocity.y, -velocity.z);
-            if (other.CompareTag("Brick"))
-            {
-                other.gameObject.GetComponent<Brick>().LooseHp(damagePower);
-            }
         }
-        else if (other.CompareTag("Brick"))
+        else if (other.CompareTag("Brick")) // TODO: Try Laurens Code
         {
+            scoreValue += 100;
+            scoreText.text = scoreValue.ToString();
             // Debug.Log("Brick: " + other.transform.position);
             // Debug.Log("Ball: " + transform.position);
 
@@ -63,7 +72,7 @@ public class Ball : MonoBehaviour
             velocity = new Vector3(velocity.x, velocity.y, -velocity.z);
         } else if (other.CompareTag("OutOfBounds"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            LooseLife();
         }
         GetComponent<AudioSource>().Play();
     }
@@ -84,5 +93,21 @@ public class Ball : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void LooseLife()
+    {
+        if (lifes <= 1)
+        {
+            lifeImages[0].SetActive(false);
+            FindObjectOfType<SettingsMenu>().GameOver();
+        }
+        else
+        {
+            lifes--;
+            lifeImages[lifes].SetActive(false);
+            transform.position = ballStartPosition;
+            velocity = new Vector3(0, 0, -maxZ);
+        }
     }
 }
