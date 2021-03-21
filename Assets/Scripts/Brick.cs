@@ -53,17 +53,14 @@ public class Brick : MonoBehaviour
     {
         Random random = new Random();
         float dropValue = random.Next(1, 100);
-        if (dropValue <= powerUpDroprate)
-        {
-            if (dropValue >= 51)
-            {
-                Instantiate(damagePowerUp, transform.position, Quaternion.identity);
-            }
-            else
-            {
-                Instantiate(doubleScorePowerUp, transform.position, Quaternion.identity);
-            }
-        }
+         if (dropValue <= 10) 
+         {
+             Instantiate(damagePowerUp, transform.position, Quaternion.identity);
+         }
+         else if (dropValue >= 11 && dropValue <= 20)
+         {
+             Instantiate(doubleScorePowerUp, transform.position, Quaternion.identity);
+         }
     }
 
     private void OnDestroy()
