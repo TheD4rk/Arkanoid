@@ -11,12 +11,12 @@ public class Brick : MonoBehaviour
     public int healthpoints;
     private Material material;
     
-    private Random random;
     private int powerUpDroprate;
+    public GameObject damagePowerUp;
+    public GameObject doubleScorePowerUp;
     void Start()
     {
-        random = new Random();
-        powerUpDroprate = 25;
+        powerUpDroprate = 100;
         material = gameObject.GetComponent<MeshRenderer>().material;
     }
 
@@ -25,6 +25,7 @@ public class Brick : MonoBehaviour
         healthpoints -= damage;
         if (healthpoints <= 0)
         {
+            PossiblePowerUp();
             Destroy(gameObject);
         }
         ChangeColor();
@@ -49,26 +50,22 @@ public class Brick : MonoBehaviour
 
     private void PossiblePowerUp()
     {
+        Random random = new Random();
         float dropValue = random.Next(1, 100);
+        Debug.Log(dropValue);
         if (dropValue <= powerUpDroprate)
         {
+            Debug.Log("Power-Up Drop!");
             if (dropValue >= 51)
             {
-                Debug.Log("Drop Power-Up 1");
-                // TODO: Drop Power Up 1
+                Debug.Log("Drop Damage Power-Up");
+                Instantiate(damagePowerUp, transform.position, Quaternion.identity);
             }
             else
             {
-                Debug.Log("Drop Power-Up 2");
-                // TODO: Drop Power Up 2
+                Debug.Log("Drop Double Score Power-Up");
+                Instantiate(doubleScorePowerUp, transform.position, Quaternion.identity);
             }
         }
-        Debug.Log("No Power-Up!");
-    }
-    
-    private void OnDestroy()
-    {
-        Debug.Log("Brick destroyed");
-        PossiblePowerUp();
     }
 }

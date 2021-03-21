@@ -1,5 +1,7 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Ball : MonoBehaviour
 {
@@ -15,12 +17,23 @@ public class Ball : MonoBehaviour
     
     public TMP_Text scoreText;
     private int scoreValue;
+    private int scoreMultiplier;
+
+    public Image damageBar;
+    private float damageTime;
+    private bool damageOn;
+    
+    public Image scoreBar;
+    private float scoreTime;
+    private bool scoreOn;
 
     private void Start()
     {
         lifes = 3;
         damagePower = 1;
         scoreValue = 0;
+
+        damageTime = 0f;
 
         ballStartPosition = new Vector3(0, 0, 0.5f);
         maxX = 15f;
@@ -43,46 +56,43 @@ public class Ball : MonoBehaviour
             float nDist = dist / maxDistance;
 
             velocity = new Vector3(nDist * maxX, velocity.y, -velocity.z);
+            GetComponent<AudioSource>().Play();
         }
         else if (other.CompareTag("Brick")) // TODO: Try Laurens Code
         {
-            scoreValue += 100;
+            scoreValue += 100 * scoreMultiplier;
             scoreText.text = scoreValue.ToString();
-            // Debug.Log("Brick: " + other.transform.position);
-            // Debug.Log("Ball: " + transform.position);
 
             if (CalculateDistance(transform, other.transform))
             {
-                // Debug.Log("Vertical");
                 velocity = new Vector3(-velocity.x, velocity.y, velocity.z);
             }
             else
             {
-                // Debug.Log("Horizontal");
                 velocity = new Vector3(velocity.x, velocity.y, -velocity.z);
             }
-            //other.GetComponent<Brick>().LooseHp(damagePower);
+            other.GetComponent<Brick>().LooseHp(damagePower);
+            GetComponent<AudioSource>().Play();
         }
         else if (other.CompareTag("VerticalWall"))
         {
             velocity = new Vector3(-velocity.x, velocity.y, velocity.z);
+            GetComponent<AudioSource>().Play();
         }
         else if (other.CompareTag("HorizontalWall"))
         {
             velocity = new Vector3(velocity.x, velocity.y, -velocity.z);
+            GetComponent<AudioSource>().Play();
         } else if (other.CompareTag("OutOfBounds"))
         {
             LooseLife();
         }
-        GetComponent<AudioSource>().Play();
     }
 
     private bool CalculateDistance(Transform ballTransform, Transform brickTransform)
     {
         float distanceX = Mathf.Abs(ballTransform.position.x - brickTransform.position.x);
         float distanceZ = Mathf.Abs(ballTransform.position.z - brickTransform.position.z);
-        // Debug.Log(distanceX);
-        // Debug.Log(distanceZ);
         if (distanceX >= brickTransform.localScale.x / 2)
         {
             if (distanceZ <= brickTransform.localScale.z / 2)
@@ -109,5 +119,49 @@ public class Ball : MonoBehaviour
             transform.position = ballStartPosition;
             velocity = new Vector3(0, 0, -maxZ);
         }
+    }
+
+    public void ActivateDamagePowerUp()
+    {
+        damageTime = 1f;
+        if (!damageOn)
+        {
+            damagePower++;
+            damageOn = true;
+            StartCoroutine(DamageTimer());
+        }
+    }
+
+    private IEnumerator DamageTimer()
+    {
+        for (;damageTime > 0; damageTime -= 0.01f)
+        {
+            damageBar.fillAmount = damageTime;
+            yield return new WaitForSeconds(0.1f);
+        }
+        damageOn = false;
+        damagePower--;
+    }
+
+    public void ActivateDoubleScore()
+    {
+        scoreTime = 1f;
+        if (!scoreOn)
+        {
+            scoreMultiplier++;
+            scoreOn = true;
+            StartCoroutine(ScoreTimer());
+        }
+    }
+    
+    private IEnumerator ScoreTimer()
+    {
+        for (;scoreTime > 0; scoreTime -= 0.01f)
+        {
+            scoreBar.fillAmount = scoreTime;
+            yield return new WaitForSeconds(0.1f);
+        }
+        scoreOn = false;
+        scoreMultiplier--;
     }
 }
