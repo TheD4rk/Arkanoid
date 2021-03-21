@@ -22,29 +22,42 @@ public class Ball : MonoBehaviour
     public Image damageBar;
     private float damageTime;
     private bool damageOn;
+    public GameObject damageText;
     
     public Image scoreBar;
     private float scoreTime;
     private bool scoreOn;
+    public GameObject scoreTextDescription;
+
+    private bool isPlaying;
 
     private void Start()
     {
         lifes = 3;
         damagePower = 1;
         scoreValue = 0;
+        scoreMultiplier = 1;
 
         damageTime = 0f;
 
         ballStartPosition = new Vector3(0, 0, 0.5f);
         maxX = 15f;
         maxZ = 15f;
-        velocity = new Vector3(0, 0, -maxZ);
-        Time.timeScale = 1;
+        velocity = new Vector3(0, 0, 0);
     }
     
     private void Update()
     {
         transform.position += velocity * Time.deltaTime;
+    }
+
+    public void ThrowTheBall()
+    {
+        if (!isPlaying)
+        {
+            velocity = new Vector3(0, 0, -maxZ);
+            isPlaying = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -117,7 +130,8 @@ public class Ball : MonoBehaviour
             lifes--;
             lifeImages[lifes].SetActive(false);
             transform.position = ballStartPosition;
-            velocity = new Vector3(0, 0, -maxZ);
+            velocity = new Vector3(0, 0, 0);
+            isPlaying = false;
         }
     }
 
@@ -134,6 +148,7 @@ public class Ball : MonoBehaviour
 
     private IEnumerator DamageTimer()
     {
+        damageText.SetActive(true);
         for (;damageTime > 0; damageTime -= 0.01f)
         {
             damageBar.fillAmount = damageTime;
@@ -141,6 +156,7 @@ public class Ball : MonoBehaviour
         }
         damageOn = false;
         damagePower--;
+        damageText.SetActive(false);
     }
 
     public void ActivateDoubleScore()
@@ -156,6 +172,7 @@ public class Ball : MonoBehaviour
     
     private IEnumerator ScoreTimer()
     {
+        scoreTextDescription.SetActive(true);
         for (;scoreTime > 0; scoreTime -= 0.01f)
         {
             scoreBar.fillAmount = scoreTime;
@@ -163,5 +180,13 @@ public class Ball : MonoBehaviour
         }
         scoreOn = false;
         scoreMultiplier--;
+        scoreTextDescription.SetActive(false);
+    }
+
+    public void ResetPosition()
+    {
+        isPlaying = false;
+        transform.position = ballStartPosition;
+        velocity = new Vector3(0, 0, 0);
     }
 }

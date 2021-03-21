@@ -16,8 +16,9 @@ public class Brick : MonoBehaviour
     public GameObject doubleScorePowerUp;
     void Start()
     {
-        powerUpDroprate = 100;
+        powerUpDroprate = 15;
         material = gameObject.GetComponent<MeshRenderer>().material;
+        ChangeColor();
     }
 
     public void LooseHp(int damage)
@@ -52,20 +53,25 @@ public class Brick : MonoBehaviour
     {
         Random random = new Random();
         float dropValue = random.Next(1, 100);
-        Debug.Log(dropValue);
         if (dropValue <= powerUpDroprate)
         {
-            Debug.Log("Power-Up Drop!");
             if (dropValue >= 51)
             {
-                Debug.Log("Drop Damage Power-Up");
                 Instantiate(damagePowerUp, transform.position, Quaternion.identity);
             }
             else
             {
-                Debug.Log("Drop Double Score Power-Up");
                 Instantiate(doubleScorePowerUp, transform.position, Quaternion.identity);
             }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        LevelController lc = FindObjectOfType<LevelController>();
+        if (lc != null)
+        {
+            lc.DecrementBricks();
         }
     }
 }

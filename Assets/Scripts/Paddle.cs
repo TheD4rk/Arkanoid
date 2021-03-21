@@ -16,7 +16,7 @@ public class Paddle : MonoBehaviour
     private void Start()
     {
         moveSpeed = 9f;
-        playAreaSize = playArea.localScale.x * 10;
+        playAreaSize = playArea.localScale.x * 9.5f;
         paddleSize = transform.localScale.x * 1;
     }
 
